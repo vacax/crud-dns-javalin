@@ -31,7 +31,7 @@ public class UsuarioServices extends GestionDB<Usuario>{
      * @return
      */
     public Usuario autenticacion(String usuario, String password){
-        System.out.println("Autenticando Usuario "+usuario+", "+password);
+        //System.out.println("Autenticando Usuario "+usuario+", "+password);
         Datastore conexionMorphia = getConexionMorphia();
         Query<Usuario> query = conexionMorphia.find(Usuario.class).filter(Filters.and(Filters.eq("username", usuario), Filters.eq("password", password)));
         if(query.count() == 0){

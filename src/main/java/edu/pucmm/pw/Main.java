@@ -60,7 +60,7 @@ public class Main {
                 })
                 .before(ctx -> {
                     //validando si existe el usuario logueado.
-                    System.out.println("Logueado: "+DatosEstaticos.USUARIO.name());
+                    //System.out.println("Logueado: "+DatosEstaticos.USUARIO.name());
                     Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.name());
                     /**
                      * Si, el usuario no está en la sesión, y la vista no es login.html y no es el endpoint de autenticar,

@@ -6,6 +6,7 @@ import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperators;
 import edu.pucmm.pw.dtos.RegistroDnsDigitalOcean;
 import edu.pucmm.pw.entidades.RegistroDns;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,13 @@ public class RegistroDnsServices extends GestionDB<RegistroDns> {
      * @return
      */
     public boolean crearRegistroDns(RegistroDns reg) throws IOException, InterruptedException {
+
+        //valiando la Ip
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        if(!validator.isValid(reg.getIp())){
+            throw new RuntimeException("IP no valida!");
+        }
+
         //
         String comando = String.format("doctl compute domain records create --output json --record-type A --record-name %s --record-ttl 200 --record-data %s %s ",
                 reg.getHost(),reg.getIp(), reg.getDominio());
@@ -94,6 +102,12 @@ public class RegistroDnsServices extends GestionDB<RegistroDns> {
      */
     public RegistroDns editarRegistroDns(String id, String ip) throws IOException, InterruptedException {
         RegistroDns reg = null;
+
+        //valiando la Ip
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        if(!validator.isValid(ip)){
+            throw new RuntimeException("IP no valida!");
+        }
 
         long modifiedCount = getConexionMorphia().find(RegistroDns.class)
                 .filter(Filters.eq("_id", new ObjectId(id)))
