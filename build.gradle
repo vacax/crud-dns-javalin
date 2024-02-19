@@ -51,7 +51,7 @@ test {
 }
 
 shadowJar{
-    archiveBaseName.set("crud-dns.jar")
+    archiveBaseName.set("crud-dns")
     archiveClassifier.set('')
     archiveVersion.set('')
 }
