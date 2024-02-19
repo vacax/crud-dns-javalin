@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'edu.pucmm.pw'
+version = '1.0-SNAPSHOT'
+
+mainClassName = 'edu.pucmm.pw.Main'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    //Javalin 6.1.
+    implementation("io.javalin:javalin:6.1.0")
+    implementation("org.slf4j:slf4j-simple:2.0.10")
+
+    //Htmx 1.9.10
+    runtimeOnly("org.webjars.npm:htmx.org:1.9.10")
+
+    implementation("com.j2html:j2html:1.6.0")
+
+    //
+    implementation('dev.morphia.morphia:morphia-core:2.4.11')
+    implementation("org.mongodb:mongodb-driver-sync:4.10.2")
+
+    //Implementación del render
+    implementation("io.javalin:javalin-rendering:6.1.0")
+
+    // https://mvnrepository.com/artifact/org.thymeleaf/thymeleaf
+    implementation 'org.thymeleaf:thymeleaf:3.1.2.RELEASE'
+
+    //
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
+}
+
+test {
+    useJUnitPlatform()
+}
