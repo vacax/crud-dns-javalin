@@ -49,3 +49,9 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+shadowJar{
+    archiveBaseName.set("crud-dns.jar")
+    archiveClassifier.set('')
+    archiveVersion.set('')
+}
