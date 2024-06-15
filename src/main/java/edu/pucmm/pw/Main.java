@@ -1,10 +1,12 @@
 package edu.pucmm.pw;
 
 import edu.pucmm.pw.controllers.RegistroController;
+import edu.pucmm.pw.controllers.UsuarioController;
 import edu.pucmm.pw.entidades.Usuario;
 import edu.pucmm.pw.services.UsuarioServices;
 import edu.pucmm.pw.utils.DatosEstaticos;
 import io.javalin.Javalin;
+import io.javalin.http.UnauthorizedResponse;
 import io.javalin.rendering.template.JavalinThymeleaf;
 
 import java.util.HashMap;
@@ -47,6 +49,7 @@ public class Main {
                             get("/db",RegistroController::creacionRegistroDns);
                             get("/lista",RegistroController::listadoRegistroHtml);
                             get("/crear", RegistroController::formularioCreacion);
+                            get("/botones", RegistroController::listadoBotonesPermisos);
                             post(RegistroController::creacionRegistroDns);
 
                             //Consulta de un registro
@@ -54,6 +57,37 @@ public class Main {
                                 get(RegistroController::formularioEdicion);
                                 delete("",RegistroController::eliminarRegistroDns);
                                 put(RegistroController::editarRegistroDns);
+                            });
+                        });
+
+                        path("/usuario", () -> {
+
+                            /**
+                             * Únicamente los usuarios administradores tienen permisos.
+                             */
+                            before(ctx -> {
+                                Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.name());
+                                if(usuario==null || !usuario.isAdministrador()){
+                                    throw new UnauthorizedResponse("No tiene acceso, debe ser administrador");
+                                }
+                            });
+
+                            get("/", ctx -> {
+                                Map<String, Object> modelo = new HashMap<>();
+                                modelo.put("titulo", "Usuarios Registro DNS DigitalOcean - "+Dominio);
+                                ctx.render("/templates/index_usuarios.html", modelo);
+                            });
+                            //Consulta generales
+                            get("/lista", UsuarioController::listadoRegistroHtml);
+                            get("/crear", UsuarioController::formularioCreacion);
+                            get("/botones", UsuarioController::listadoBotonesPermisos);
+                            post(UsuarioController::creacionUsuario);
+
+                            //Consulta de un registro
+                            path("/{id}",() -> {
+                                get(UsuarioController::formularioEdicion);
+                                delete("",UsuarioController::eliminarUsuario);
+                                put(UsuarioController::editarUsuario);
                             });
                         });
                     });
@@ -84,12 +118,19 @@ public class Main {
                     ctx.redirect("/");
                 })
 
+                //Salida del sistema.
+                .get("/logout", ctx -> {
+                    ctx.req().getSession().invalidate();
+                    ctx.redirect("/");
+                })
+
                 //Enviando al template
                 .get("/", ctx -> {
                     Map<String, Object> modelo = new HashMap<>();
                     modelo.put("titulo", "Registro DNS DigitalOcean - "+Dominio);
                     ctx.render("/templates/index.html", modelo);
                 })
+
                 .start(7000);
     }
 }

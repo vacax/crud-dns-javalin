@@ -12,7 +12,7 @@
     <!-- Libreria para HTMX vía Webjars-->
     <script src="/webjars/htmx.org/1.9.10/dist/htmx.min.js"></script>
 
-    <title th:text="${titulo}">Registro DNS DigitalOcean</title>
+    <title th:text="${titulo}">Usuario DNS DigitalOcean</title>
 </head>
 <body>
 
@@ -20,7 +20,7 @@
     <div class="row mt-3">
         <div class="col-sm">
             <h1 class="text-center" th:text="${titulo}">Registro DNS DigitalOcean</h1>
-            <div hx-get="/registro/botones" hx-trigger="load">
+            <div hx-get="/usuario/botones" hx-trigger="load">
 
             </div>
         </div>
@@ -30,15 +30,13 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Host</th>
-                    <th scope="col">IP</th>
-                    <th scope="col">Creado Por</th>
-                    <th scope="col">Fecha</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Password</th>
+                    <th scope="col">Administrador</th>
                     <th scope="col">Accion</th>
                 </tr>
                 </thead>
-                <tbody id="filas" hx-get="/registro/lista" hx-trigger="load" >
+                <tbody id="filas" hx-get="/usuario/lista" hx-trigger="load" >
 
                 </tbody>
             </table>

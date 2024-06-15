@@ -1,48 +1,32 @@
 package edu.pucmm.pw.controllers;
 
-import edu.pucmm.pw.Main;
 import edu.pucmm.pw.entidades.RegistroDns;
 import edu.pucmm.pw.entidades.Usuario;
-import edu.pucmm.pw.services.RegistroDnsServices;
+import edu.pucmm.pw.services.UsuarioServices;
 import edu.pucmm.pw.utils.DatosEstaticos;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import static j2html.TagCreator.*;
 
-import java.util.Date;
 import java.util.List;
 
-public class RegistroController {
+import static j2html.TagCreator.*;
+import static j2html.TagCreator.button;
 
-    private static final RegistroDnsServices registroDnsServices = RegistroDnsServices.getInstancia();
+public class UsuarioController {
 
+    private static final UsuarioServices usuarioServices = UsuarioServices.getInstancia();
 
-
-    /**
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    public static void listarRegistrosDns(@NotNull Context ctx) throws Exception{
-        ctx.json(registroDnsServices.getListaRegistroDns(Main.Dominio));
-    }
-
-    /**
-     *
-     * @param ctx
-     * @throws Exception
-     */
     public static void listadoRegistroHtml(@NotNull Context ctx) throws Exception{
 
         //Retomando
         Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.name());
 
         //
-        List<RegistroDns> listaRegistroDns = registroDnsServices.listaRegistroPorUsuario(usuario);
+        List<Usuario> listaUsuarios = usuarioServices.listaUsuarios();
 
         String salida = "";
-        for(RegistroDns r: listaRegistroDns){
-            salida += crearTrRegistroDns(r);
+        for(Usuario r: listaUsuarios){
+            salida += crearTrUsuario(r);
         }
 
         ctx.result(salida);
@@ -53,55 +37,46 @@ public class RegistroController {
      * @param ctx
      * @throws Exception
      */
-    public static void creacionRegistroDns(@NotNull Context ctx) throws Exception{
-        //
-        String host = ctx.formParam("host");
-        String ip = ctx.formParam("ip");
-
-        //
-        Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.getValor());
-
-        //
-        System.out.println(String.format("Recibiendo host: %s y IP: %s", host, ip));
-        RegistroDns reg = new RegistroDns(host,ip, Main.Dominio,usuario.getUsername(),new Date(), 200);
-        registroDnsServices.crearRegistroDns(reg);
-
-        //
-        ctx.result(crearTrRegistroDns(reg));
-    }
-
-    /**
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    public static void eliminarRegistroDns(@NotNull Context ctx) throws Exception{
-        String id = ctx.pathParam("id");
-        RegistroDns registroDns = registroDnsServices.eliminarRegistroDns(id);
-        ctx.result(crearTrRegistroDns(registroDns));
-    }
-
-    public static void editarRegistroDns(@NotNull Context ctx) throws Exception{
-        String id = ctx.pathParam("id");
-        String ip = ctx.formParam("ip");
-        System.out.println(String.format("Editando -> ID: %s, IP: %s", id, ip));
-        RegistroDns reg = registroDnsServices.editarRegistroDns(id, ip);
-        ctx.result(crearTrRegistroDns(reg));
-    }
-
-    /**
-     *
-     * @param ctx
-     * @throws Exception
-     */
     public static void formularioCreacion(@NotNull Context ctx) throws Exception{
-        String salida = crearTagModalCreacionEdicionRegistroDns(null);
+        String salida = crearTagModalCreacionEdicionUsuario(null);
         //
         System.out.println("modal: "+salida);
         //
         ctx.result(salida);
     }
 
+    /**
+     *
+     * @param ctx
+     * @throws Exception
+     */
+    public static void creacionUsuario(@NotNull Context ctx) throws Exception{
+        //
+        String username = ctx.formParam("username");
+        String password = ctx.formParam("password");
+
+        //
+        //Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.getValor());
+
+        //
+        System.out.println(String.format("Recibiendo username: %s y IP: %s", username, password));
+        Usuario usuario = new Usuario(username, password);
+        usuarioServices.crear(usuario);
+
+        //
+        ctx.result(crearTrUsuario(usuario));
+    }
+
+    /**
+     *
+     * @param ctx
+     * @throws Exception
+     */
+    public static void eliminarUsuario(@NotNull Context ctx) throws Exception{
+        String id = ctx.pathParam("id");
+        Usuario usuario = usuarioServices.eliminarUsuario(id);
+        ctx.result(crearTrUsuario(usuario));
+    }
 
     /**
      *
@@ -110,8 +85,16 @@ public class RegistroController {
      */
     public static void formularioEdicion(@NotNull Context ctx) throws Exception{
         String id = ctx.pathParam("id");
-        RegistroDns reg = registroDnsServices.findByID(id);
-        ctx.result(crearTagModalCreacionEdicionRegistroDns(reg));
+        Usuario reg = usuarioServices.findByID(id);
+        ctx.result(crearTagModalCreacionEdicionUsuario(reg));
+    }
+
+    public static void editarUsuario(@NotNull Context ctx) throws Exception{
+        String id = ctx.pathParam("id");
+        String password = ctx.formParam("password");
+        System.out.println(String.format("Editando -> ID: %s, IP: %s", id, password));
+        Usuario reg = usuarioServices.editarUsuario(id, password);
+        ctx.result(crearTrUsuario(reg));
     }
 
     /**
@@ -122,18 +105,18 @@ public class RegistroController {
     public static void listadoBotonesPermisos(@NotNull Context ctx) throws Exception{
         Usuario usuario = ctx.sessionAttribute(DatosEstaticos.USUARIO.getValor());
         String salida = "";
-        salida += button("Crear Registro")
+        salida += button("Crear Usuario")
                 .withType("button")
                 .withClasses("btn", "btn-primary")
-                .attr("hx-get", "/registro/crear")
+                .attr("hx-get", "/usuario/crear")
                 .attr("hx-target", "#modal-1")
                 .attr("hx-trigger", "click")
                 .attr("data-bs-toggle", "modal")
                 .attr("data-bs-target", "#modal-1")
                 .render();
         if(usuario.isAdministrador()){
-            salida+=a("Usuarios")
-                    .withHref("/usuario/")
+            salida+=a("Registro DNS")
+                    .withHref("/")
                     .withClasses("btn", "btn-dark")
                     .render();
         }
@@ -146,31 +129,24 @@ public class RegistroController {
 
     }
 
-    /**
-     *
-     * @param r
-     * @return
-     */
     @NotNull
-    private static String crearTrRegistroDns(@NotNull RegistroDns r) {
+    private static String crearTrUsuario(Usuario r) {
         String registro = tr(
                 input().withType("hidden").withValue(r.getId().toString()),
-                td(""+ r.getIdDigitalOcean()),
-                td(r.getHost()+"."+r.getDominio()),
-                td(r.getIp()),
-                td(r.getCreadoPor()),
-                td(""+ r.getFechaCreacion()),
+                td(""+ r.getUsername()),
+                td(r.getPassword()),
+                td(""+r.isAdministrador()),
                 td(
                         button("Editar")
                                 .withClasses("btn", "btn-secondary")
-                                .attr("hx-get", String.format("/registro/%s",r.getId().toHexString()))
+                                .attr("hx-get", String.format("/usuario/%s",r.getId().toHexString()))
                                 .attr("hx-target", "#modal-1")
                                 .attr("hx-trigger", "click")
                                 .attr("data-bs-toggle", "modal")
                                 .attr("data-bs-target", "#modal-1"),
                         button("Eliminar")
                                 .withClasses("btn", "btn-danger")
-                                .attr("hx-delete",String.format("/registro/%s",r.getId().toHexString()))
+                                .attr("hx-delete",String.format("/usuario/%s",r.getId().toHexString()))
                                 .attr("hx-trigger", "click")
                                 .attr("hx-target", "#reg-"+r.getId().toHexString())
                                 .attr("hx-swap", "delete")
@@ -182,23 +158,19 @@ public class RegistroController {
         return registro;
     }
 
-
-
-
-
     /**
      *
      * @param reg
      * @return
      */
-    private static String crearTagModalCreacionEdicionRegistroDns(RegistroDns reg) {
+    private static String crearTagModalCreacionEdicionUsuario(Usuario reg) {
         String salida = div(
                 //div(
                 div(
                         form(
 
                                 div(
-                                        h5(reg == null ? "Creacion de Registro" : "Edicion de Registro").withClass("modal-title"),
+                                        h5(reg == null ? "Creacion de Usuario" : "Edicion de Usuario").withClass("modal-title"),
                                         button()
                                                 .attr("type", "button")
                                                 .attr("class","btn-close")
@@ -208,28 +180,28 @@ public class RegistroController {
                                 ).withClass("modal-header"),
                                 div(
                                         div(
-                                                label("Host")
+                                                label("Usuario")
                                                         .withClass("form-label"),
                                                 input()
                                                         .withType("text")
-                                                        .withName("host")
+                                                        .withName("username")
                                                         .withCondRequired(true)
-                                                        .withPlaceholder("Host")
+                                                        .withPlaceholder("Nombre Usuario")
                                                         .withClass("form-control")
                                                         .withCondReadonly(reg !=null) //si viene con valor es solo lectura.
-                                                        .withCondValue(reg !=null, reg!=null ? reg.getHost() : "")
+                                                        .withCondValue(reg !=null, reg!=null ? reg.getUsername() : "")
                                         ).withClass("mb-3"),
 
                                         div(
-                                                label("IP")
+                                                label("Password")
                                                         .withClass("form-label"),
                                                 input()
-                                                        .withType("text")
-                                                        .withName("ip")
+                                                        .withType("password")
+                                                        .withName("password")
                                                         .withCondRequired(true)
-                                                        .withPlaceholder("xxxx.xxxx.xxxx.xxxx")
+                                                        .withPlaceholder("Password")
                                                         .withClass("form-control")
-                                                        .withCondValue(reg !=null, reg!=null ? reg.getIp() : "")
+                                                        .withCondValue(reg !=null, reg!=null ? reg.getPassword() : "")
                                         ).withClass("mb-3")
 
                                 ).withClass("modal-body"),
@@ -242,8 +214,8 @@ public class RegistroController {
                                 ).withClass("modal-footer")
                         )
                                 //Un endpoint para la creación y otro para la edición.
-                                .condAttr(reg == null,"hx-post","/registro")
-                                .condAttr(reg != null,"hx-put",reg!= null ? "/registro/"+reg.getId().toHexString() : "")
+                                .condAttr(reg == null,"hx-post","/usuario")
+                                .condAttr(reg != null,"hx-put",reg!= null ? "/usuario/"+reg.getId().toHexString() : "")
                                 // Si es creando, agrego el elemento al inicio de la tabla.
                                 .condAttr(reg == null,"hx-target","#filas")
                                 // De lo contrario reemplazo el id, con el valor modificado.
@@ -257,5 +229,6 @@ public class RegistroController {
         ).withClass("modal-dialog modal-dialog-centered").renderFormatted();
         return salida;
     }
+
 
 }

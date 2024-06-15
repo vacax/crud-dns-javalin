@@ -6,6 +6,7 @@ import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperators;
 import edu.pucmm.pw.dtos.RegistroDnsDigitalOcean;
 import edu.pucmm.pw.entidades.RegistroDns;
+import edu.pucmm.pw.entidades.Usuario;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -202,8 +203,12 @@ public class RegistroDnsServices extends GestionDB<RegistroDns> {
      * @param usuario
      * @return
      */
-    public List<RegistroDns> listaRgistroPorUsuario(String usuario){
+    public List<RegistroDns> listaRegistroPorUsuario(Usuario usuario){
         Datastore con = getConexionMorphia();
-        return con.find(RegistroDns.class).filter(Filters.eq("creadoPor", usuario)).iterator().toList();
+        if(!usuario.isAdministrador()) {
+            return con.find(RegistroDns.class).filter(Filters.eq("creadoPor", usuario.getUsername())).iterator().toList();
+        }else{
+            return con.find(RegistroDns.class).iterator().toList();
+        }
     }
 }

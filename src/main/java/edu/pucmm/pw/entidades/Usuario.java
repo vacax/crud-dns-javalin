@@ -10,6 +10,7 @@ public class Usuario {
     ObjectId id;
     String username;
     String password;
+    boolean administrador;
 
     public Usuario() {
     }
@@ -23,6 +24,13 @@ public class Usuario {
         this.id = id;
         this.username = username;
         this.password = password;
+    }
+
+    public Usuario(ObjectId id, String username, String password, boolean administrador) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.administrador = administrador;
     }
 
     public ObjectId getId() {
@@ -49,12 +57,21 @@ public class Usuario {
         this.password = password;
     }
 
+    public boolean isAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(boolean administrador) {
+        this.administrador = administrador;
+    }
+
     @Override
     public String toString() {
         return "Usuario{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", administrador=" + administrador +
                 '}';
     }
 }
